@@ -377,22 +377,31 @@ p.intro {
     Resumption Token
 -->
 <xsl:template match="oai:resumptionToken">
-    <xsl:if test=". != ''">
-        <p>There are more results.</p>
-    </xsl:if>
-    <table class="values">
-        <tr><td class="key">Submitted Records</td>
+    <xsl:choose>
+        <xsl:when test="normalize-space(.)">
+            <p>There are more results.</p>
+        </xsl:when>
+        <xsl:otherwise>
+            <p>There are no more results.</p>
+        </xsl:otherwise>
+   </xsl:choose>
+   <table class="values">
+        <tr><td class="key">Cursor</td>
         <td class="value"><xsl:value-of select="@cursor"/></td></tr>
         <tr><td class="key">Total Records</td>
         <td class="value"><xsl:value-of select="@completeListSize"/></td></tr>
-        <tr><td class="key">Expiration Datestamp</td>
-        <td class="value"><xsl:value-of select="@expirationDate"/></td></tr>
-        <tr><td class="key">Resumption Token</td>
-        <td class="value">
-            <xsl:if test=". != ''">
-                <a class="link" href="?verb={/oai:OAI-PMH/oai:request/@verb}&amp;resumptionToken={.}">Resume</a>
-            </xsl:if>
-        </td></tr>
+        <xsl:if test="@expirationDate">
+            <tr><td class="key">Expiration Datestamp</td>
+            <td class="value"><xsl:value-of select="@expirationDate"/></td></tr>
+        </xsl:if>
+        <xsl:if test="normalize-space(.)">
+            <tr><td class="key">Resumption Token</td>
+            <td class="value">
+                <xsl:if test=". != ''">
+                    <a class="link" href="?verb={/oai:OAI-PMH/oai:request/@verb}&amp;resumptionToken={.}">Resume</a>
+                </xsl:if>
+            </td></tr>
+        </xsl:if>
     </table>
 </xsl:template>
 

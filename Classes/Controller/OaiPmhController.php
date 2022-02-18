@@ -757,6 +757,8 @@ class OaiPmhController extends AbstractController
         // See http://www.openarchives.org/OAI/openarchivesprotocol.html#FlowControl
         $currentCursor = $documentListSet['metadata']['cursor'];
 
+        $resumptionTokenInfo = [];
+
         if (count($documentListSet['elements']) !== 0) {
             $resumptionToken = uniqid('', false);
 
@@ -769,22 +771,19 @@ class OaiPmhController extends AbstractController
 
             // add to tokenRepository
             $this->tokenRepository->add($newToken);
+            $resumptionTokenInfo['token'] = $resumptionToken;
+            $expireDateTime = new \DateTime();
+            $expireDateTime->add(new \DateInterval('PT' . $this->settings['expired'] . 'S'));
+            $resumptionTokenInfo['expired'] = $expireDateTime;
+
         } else {
             // Result set complete. We don't need a token.
             $resumptionToken = '';
         }
 
-        $resumptionTokenInfo = [];
-        $resumptionTokenInfo['token'] = $resumptionToken;
         $resumptionTokenInfo['cursor'] = $currentCursor;
         $resumptionTokenInfo['completeListSize'] = $documentListSet['metadata']['completeListSize'];
-        $expireDateTime = new \DateTime();
-        $expireDateTime->add(new \DateInterval('PT' . $this->settings['expired'] . 'S'));
-        $resumptionTokenInfo['expired'] = $expireDateTime;
 
-        $omitResumptionToken = $currentCursor === 0 && $numShownDocuments >= $documentListSet['metadata']['completeListSize'];
-        if (!$omitResumptionToken) {
-            $this->view->assign('resumptionToken', $resumptionTokenInfo);
-        }
+        $this->view->assign('resumptionToken', $resumptionTokenInfo);
     }
 }
