@@ -49,6 +49,9 @@ page {
     kitodo-pageView-searchInDocument = EXT:dlf/Resources/Public/Javascript/PageView/SearchInDocument.js
     kitodo-pageView-pageView = EXT:dlf/Resources/Public/Javascript/PageView/PageView.js
     kitodo-search-suggest = EXT:dlf/Resources/Public/Javascript/Search/Suggester.js
+    kitodo-listView = EXT:dlf/Resources/Public/Javascript/Search/ListView.js
+    kitodo-listView.excludeFromConcatenation = 1
+    kitodo-listView.type = module
 
   }
 }
