@@ -93,6 +93,17 @@ class SolrSearch implements \Countable, \Iterator, \ArrayAccess, QueryResultInte
         $document = $this->result['documents'][$idx] ?? null;
 
         if ($document !== null) {
+            $metadata = $this->fetchToplevelMetadataFromSolr([
+                'query' => 'uid:' . $document['uid'],
+                'start' => 0,
+                'rows' => 1,
+                'sort' => ['score' => 'desc'],
+            ])[$document['uid']] ?? [];
+
+            if (!empty($metadata)) {
+                $document['metadata'] = $metadata;
+            }
+
             // get title of parent/grandparent/... if empty
             if (empty($document['title']) && $document['partOf'] > 0) {
                 $superiorTitle = Doc::getTitle($document['partOf'], true);
@@ -340,7 +351,11 @@ class SolrSearch implements \Countable, \Iterator, \ArrayAccess, QueryResultInte
                             $documents[$doc['uid']]['page'] = 1;
                             $children = $childrenOf[$doc['uid']] ?? [];
                             if (!empty($children)) {
-                                $metadataOf = $this->fetchChildrenMetadataFromSolr($doc['uid']);
+                                $metadataOf = $this->fetchToplevelMetadataFromSolr([
+                                    'query' => 'partof:' . $doc['uid'],
+                                    'start' => 0,
+                                    'rows' => 100,
+                                ]);
                                 foreach ($children as $docChild) {
                                     // We need only a few fields from the children, but we need them as array.
                                     $childDocument = [
@@ -364,21 +379,18 @@ class SolrSearch implements \Countable, \Iterator, \ArrayAccess, QueryResultInte
     }
 
     /**
-     * Find all listed metadata of children of given document
+     * Find all listed metadata using specified query params.
      *
-     * @param int $uid the uid of the document
+     * @param int $queryParams
      * @return array
      */
-    protected function fetchChildrenMetadataFromSolr($uid)
+    protected function fetchToplevelMetadataFromSolr($queryParams)
     {
         // Prepare query parameters.
-        $params = [];
+        $params = $queryParams;
         $metadataArray = [];
 
         // Set some query parameters.
-        $params['query'] = 'partof:' . $uid;
-        $params['start'] = 0;
-        $params['rows'] = 100;
         $params['listMetadataRecords'] = [];
 
         // Restrict the fields to the required ones.
