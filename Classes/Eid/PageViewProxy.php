@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -50,6 +51,7 @@ class PageViewProxy
     {
         $this->requestFactory = GeneralUtility::makeInstance(RequestFactory::class);
         $this->extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('dlf');
+        $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(static::class);
     }
 
     /**
@@ -150,6 +152,7 @@ class PageViewProxy
                 'http_errors' => false,
             ]);
         } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
             return new JsonResponse(['message' => 'Could not fetch resource of given URL.'], 500);
         }
 
