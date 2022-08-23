@@ -31,5 +31,4 @@ html_theme = 'sphinx_typo3_theme'
 # us to visit http://127.0.0.1:8000/Index.html. We thus add an `index.html` that
 # redirects to `Index.html`.
 master_doc = 'Index'
-html_extra_path = ['index.html']
 exclude_patterns = []

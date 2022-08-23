@@ -64,6 +64,7 @@ services:
           set -x
         fi
         if [ -z ${TYPO3_VERSION} ]; then
+          composer clearcache;
           composer install --no-progress --no-interaction;
         else
           composer update --with=typo3/cms-core:^${TYPO3_VERSION} --no-progress --no-interaction;
